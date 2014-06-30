@@ -1,72 +1,39 @@
-\documentclass{article}
 
-\usepackage{hyperref}
-\usepackage[T1]{fontenc}
-<<setup, include=FALSE>>=
+## ----setup, include=FALSE------------------------------------------------
 library(knitr)
 options(width=50)
 # an old solution by @r2d3 was at https://github.com/yihui/knitr/issues/210
 # but since knitr 0.9, we can do it through the chunk option tidy.opts
-@
 
-\begin{document}
 
-\title{Introduction to spatial data analysis with R}
-\author{Edgar Dobriban}
-
-\maketitle
-This script presents an introduction to spatial data analysis with R. It is based on Chapters 2 and 9 of our book: \textbf{Applied Spatial Data Analysis with R}, Roger S. Bivand, Edzer Pebesma and V. Gomez-Rubio
- UseR! Series, Springer, 2nd ed. 2013.
- 
-Running this script requires that the code and data bundles from the book be unzipped in the same folder as the script. For instance the zip bundle for chapter 2 is available at: 
-\url{http://www.asdar-book.org/data2ed.php?chapter=2}
-
-Similarly, get the zip bundle for chapter 9.
- 
-In the first part of the lecture, we will work with existing spatial data in R. Second we will also understand how to create such data.
-
-Okay, let's get started: clear up the workspace and change directory to where the data is!
-
-<<>>=
+## ------------------------------------------------------------------------
 #set up: clear all  & set wd
 rm(list=ls()) 
 setwd("C:/Dropbox/253/lat_bundle")
-@ 
 
-Let's load two required libraries:
 
-rgdal: processes GDAL - Geospatial Data Analysis files
-spdep: Spatial dependence: weighting schemes, statistics and models.
-
-<<>>=
+## ------------------------------------------------------------------------
 library(rgdal) 
 library(spdep) 
-@
 
-The data set consists of Leukemia incidence in 281 census tracts in 8 central NY state counties (and was collected in the 1980's)
 
-This is how we read the data sets:
-<<>>=
+## ------------------------------------------------------------------------
 NY8 <- readOGR(".", "NY8_utm18") 
 # read Shapefile (spdep package), 
 # arguments (1)"." - source: a directory; here current wd 
 # (2) layer: shapefile name
 # Note: find shapefiles by googling "[location] shapefile"
-@
 
-Some additional data:
 
-<<>>=
+## ------------------------------------------------------------------------
 #city names
 cities <- readOGR(".", "NY8cities") 
 #locations of 11 inactive hazardous waste sites; 
 # TCE: Trichloroethylene
 TCE <- readOGR(".", "TCE")
-@
 
-Let's look at how the data is stored.
 
-<<>>=
+## ------------------------------------------------------------------------
 # How is the data stored?
 class(NY8) 
 getClass("SpatialPolygonsDataFrame")
@@ -74,41 +41,36 @@ getClass("SpatialPolygonsDataFrame")
 
 #spatial polygons contain polygons and Spatial* characteristics
 getClass("SpatialPolygons")
-@
 
-<<>>=
+
+## ------------------------------------------------------------------------
 # a polygon is a sequence of closed lines;
 # point coordinates where the first point equals the last 
 getClass("Polygon")
 #labpt - label point, centroid of polygon
 # a line is an ordered list of coordinates
 getClass("Line")
-@
 
-<<>>=
+
+## ------------------------------------------------------------------------
 #finally... Spatial is the mother class of all Spatial* classes 
 # used in in the sp package
 getClass("Spatial")
-@
 
 
-What does the data contain?
-<<>>=
+## ------------------------------------------------------------------------
 summary(NY8)
 #Note the special slots of this class
 #Coordinates
 #proj4string
 #Spatial data.frame - with coordinates X,Y
-@
-What about the 'cities' data?
 
-<<>>=
+
+## ------------------------------------------------------------------------
 summary(cities)
-@
 
-Let's make some plots:
 
-<<>>=
+## ------------------------------------------------------------------------
 #plot cities & TCE locations
 plot(NY8, border="grey60", axes=TRUE)
 text(coordinates(cities), labels=as.character(cities$names), font=2, cex=1.5)
@@ -116,20 +78,16 @@ plot(NY8, border="grey60", axes=TRUE)
 points(TCE, pch=2, cex=1.5)
 text(coordinates(TCE), labels=as.character(TCE$name), cex=1.5,
      font=1, pos=c(4,1,4,1,4,4,4,2,3,4,2), offset=0.3)
-@
 
-Let's plot one of the features - percent age > 65.
 
-<<>>=
+## ------------------------------------------------------------------------
 #plot one of the features - percent age > 65
 spplot(NY8, c("PCTAGE65P"))#, col="transparent"
 
 spplot(NY8, c("PCTAGE65P"), col="transparent")
-@
 
 
-Let's make a different plot, with a  new color palette:
-<<>>=
+## ------------------------------------------------------------------------
 #different plot: new color palette
 #load package
 library("RColorBrewer")
@@ -147,47 +105,27 @@ tr_rds <- rds(20)
 tr_pl <- spplot(NY8, c("PCTAGE65P"), at=tr_at, col="transparent",
                 col.regions=tr_rds, main=list(label="Age>65", cex=0.8))
 plot(tr_pl)
-@
 
-Finally, let's read the last piece of data - a list of neighbors that specifies the lattice structure.
 
-<<>>=
+## ------------------------------------------------------------------------
 
 # reads a GAL lattice file into a neighbors list 
 NY_nb <- read.gal("NY_nb.gal", region.id=row.names(NY8))
 
 summary(NY_nb) #which states are neighbors?
-@
 
-<<>>=
+
+## ------------------------------------------------------------------------
 plot(NY8, border="grey60", axes=TRUE)
 plot(NY_nb, coordinates(NY8), pch=19, cex=0.6, add=TRUE)
-@
 
 
-We finally get to the data analysis part! 
-
-Let's first fit a simple linear model, where we regress the leukemia incidence on covariates of interest.
-
-The leukemia incidence is transformed the following way:
-
-$$ z = log(1000(Y_i+1)/n_i) $$
-
-The covariates are:
-\begin{itemize}
-\item exposure to TCE- log inverse distance from nearest site
-\item percent aged >65
-\item percent owning home
-\end{itemize}
-
-<<>>=
+## ------------------------------------------------------------------------
 nylm <- lm(Z~PEXPOSURE+PCTAGE65P+PCTOWNHOME, data=NY8)
 summary(nylm)
-@
 
-Let's plot the fit and residual.
 
-<<>>=
+## ------------------------------------------------------------------------
 NY8$lm_fit <- nylm$fit
 NY8$lm_residual <- nylm$residuals
 rds <- colorRampPalette(brewer.pal(8, "RdBu"))
@@ -195,16 +133,9 @@ fit_pl <- spplot(NY8, c("lm_fit"), col="transparent", cex=0.8)
 res_pl <- spplot(NY8, c("lm_residual"), col="transparent", cex=0.8)
 plot(fit_pl, split=c(1,1,2,1), more=TRUE)
 plot(res_pl, split=c(2,1,2,1), more=FALSE)
-@
 
-Let's move to a more sophisticated autoregressive model:
-$$
- (I - \lambda W)(Y- X\beta) = \varepsilon
-$$
 
-In order to specify such a model, we need to create the adjacency matrix $W$. We generate this as a 'spatial weight object' from the neighbor list object we loaded.
-
-<<>>=
+## ------------------------------------------------------------------------
 # generate weight object from neighbor list object
 # "B" - generates binary weights
 NYlistw<-nb2listw(NY_nb, style = "B")
@@ -213,18 +144,9 @@ NYlistw<-nb2listw(NY_nb, style = "B")
 nysar<-spautolm(Z~PEXPOSURE+PCTAGE65P+PCTOWNHOME, data=NY8, listw=NYlistw)
 
 summary(nysar)
-@
 
 
-Note: lambda significantly different from 0 indicates that there is significant reduction in RSS by modelling the spatial correlations.
-
-For more understanding, let's plot the trend and stochastic component, which are the first and second element on the RHS of the following equation:
-
-$$
- Y =  X* \beta + \lambda W)(Y-X\beta) +  \varepsilon
-$$
-
-<<>>=
+## ------------------------------------------------------------------------
 #plot trend and stochastic component
 NY8$sar_trend <- nysar$fit$signal_trend
 NY8$sar_stochastic <- nysar$fit$signal_stochastic
@@ -239,13 +161,9 @@ st_pl <- spplot(NY8, c("sar_stochastic"), at=st_at, col="transparent",
                 col.regions=st_rds, main=list(label="Stochastic", cex=0.8))
 plot(tr_pl, split=c(1,1,2,1), more=TRUE)
 plot(st_pl, split=c(2,1,2,1), more=FALSE)
-@
 
-Ok this is great, but how do I transform my data into spatial format? Let's examine how to create spatial data.
 
-There are two important structures,  \verb+"SpatialPointsDataFrame"+ and \verb+listw+.
-
-<<>>=
+## ------------------------------------------------------------------------
 #Key data type #1: "SpatialPointsDataFrame"
 getClass("SpatialPointsDataFrame")
 
@@ -265,15 +183,15 @@ llCRS <- CRS(as.character(NA))
 
 CRAN_spdf <- SpatialPointsDataFrame(CRAN_sp, CRAN_df)
 summary(CRAN_spdf)
-@
-
-<<>>=
-#Key data type #2: Spatial Weights - listw
-#listw is an old-style (S3) class, so has no formal definition
-# it is based on the Spatial neighbors ("nb") class
-#run the following: vignette("nb", package = "spdep") #read more
-@
 
 
+## ------------------------------------------------------------------------
+NY_w <-nb2listw(NY_nb)
+summary(NY_w)
 
-\end{document}
+
+## ------------------------------------------------------------------------
+NY_w <-nb2listw(NY_nb, style = "B")
+summary(NY_w)
+
+

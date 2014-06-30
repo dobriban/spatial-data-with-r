@@ -36,7 +36,7 @@ Okay, let's get started: clear up the workspace and change directory to where th
 <<>>=
 #set up: clear all  & set wd
 rm(list=ls()) 
-setwd("C:/Dropbox/253/lat_bundle")
+setwd("C:/Dropbox/253/spatial data analysis with R")
 @ 
 
 Let's load two required libraries:
