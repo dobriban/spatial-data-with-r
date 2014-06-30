@@ -3,7 +3,7 @@ spatial-data-with-r
 
 These are the materials for my lecture on Spatial Data Analysis with R, in the Stanford course 
 Stats 253, Analysis of Spatial and Temporal Data
-taught by Dennis Sun, Stanford University, Summer 2014
+taught by Dennis Sun, Stanford University, Summer 2014:
 http://web.stanford.edu/class/stats253
 
 I'm a TA for the class and I'm giving a lecture to introduce spatial data analysis.
