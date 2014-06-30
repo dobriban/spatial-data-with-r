@@ -51,6 +51,10 @@
 
 \usepackage{hyperref}
 \usepackage[T1]{fontenc}
+\usepackage{geometry} % to change the page dimensions
+\geometry{letterpaper} % or letterpaper (US) or a5paper or....
+\geometry{margin=0.75in} % for example, change the margins to 2 inches all round
+
 
 
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
@@ -60,11 +64,13 @@
 \author{Edgar Dobriban}
 
 \maketitle
-This script presents an introduction to spatial data analysis with R. It is based on Chapters 2 and 9 of our book: \textbf{Applied Spatial Data Analysis with R}, Roger S. Bivand, Edzer Pebesma and V. Gomez-Rubio
- UseR! Series, Springer, 2nd ed. 2013.
- 
-Running this script requires that the code and data bundles from the book be unzipped in the same folder as the script. For instance the zip bundle for chapter 2 is available at: 
-\url{http://www.asdar-book.org/data2ed.php?chapter=2}
+  This script presents an introduction to spatial data analysis with R. It is based on Chapters 2 and 9 of our book: \textbf{Applied Spatial Data Analysis with R}, Roger S. Bivand, Edzer Pebesma and V. Gomez-Rubio
+   UseR! Series, Springer, 2nd ed. 2013.
+   
+   Please consult the textbook for more extensive reference, it is a great resource.
+   
+  Running this script requires that the code and data bundles from the book be unzipped in the same folder as the script. For instance the zip bundle for chapter 2 is available at: 
+  \url{http://www.asdar-book.org/data2ed.php?chapter=2}
 
 Similarly, get the zip bundle for chapter 9.
  
@@ -152,6 +158,7 @@ Some additional data:
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
+
 
 Let's look at how the data is stored.
 
@@ -756,17 +763,75 @@ There are two important structures,  \verb+"SpatialPointsDataFrame"+ and \verb+l
 \end{kframe}
 \end{knitrout}
 
+The second key data type is the class of Spatial Weights - listw. 
+
+It is based on the Spatial neighbors \verb+("nb")+ class. This class is a list of length $n$, where $n$ is the number of our nodes, 
+with the index numbers of neighbors of each component stored as an integer vector. Run the following: \verb+vignette("nb", package = "spdep")+ to read more on neighbors.
+
+Recall that we already have \verb+NY_nb+ as an object of nb class. 
+
+On top of it we can add nonzero weights for each pair of neighbors, getting the listw class. 
+
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlcom{#Key data type #2: Spatial Weights - listw}
-\hlcom{#listw is an old-style (S3) class, so has no formal definition}
-\hlcom{# it is based on the Spatial neighbors ("nb") class}
-\hlcom{#run the following: vignette("nb", package = "spdep") #read more}
+\hlstd{NY_w} \hlkwb{<-}\hlkwd{nb2listw}\hlstd{(NY_nb)}
+\hlkwd{summary}\hlstd{(NY_w)}
 \end{alltt}
+\begin{verbatim}
+## Characteristics of weights list object:
+## Neighbour list object:
+## Number of regions: 281 
+## Number of nonzero links: 1522 
+## Percentage nonzero weights: 1.928 
+## Average number of links: 5.416 
+## Link number distribution:
+## 
+##  1  2  3  4  5  6  7  8  9 10 11 
+##  6 11 28 45 59 49 45 23 10  3  2 
+## 6 least connected regions:
+## 55 97 100 101 244 245 with 1 link
+## 2 most connected regions:
+## 34 82 with 11 links
+## 
+## Weights style: W 
+## Weights constants summary:
+##     n    nn  S0    S1   S2
+## W 281 78961 281 115.4 1169
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
+By default each node is normalized to have total sum of out-weights equal to 1. We can also choose to use binary weights.
 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{NY_w} \hlkwb{<-}\hlkwd{nb2listw}\hlstd{(NY_nb,} \hlkwc{style} \hlstd{=} \hlstr{"B"}\hlstd{)}
+\hlkwd{summary}\hlstd{(NY_w)}
+\end{alltt}
+\begin{verbatim}
+## Characteristics of weights list object:
+## Neighbour list object:
+## Number of regions: 281 
+## Number of nonzero links: 1522 
+## Percentage nonzero weights: 1.928 
+## Average number of links: 5.416 
+## Link number distribution:
+## 
+##  1  2  3  4  5  6  7  8  9 10 11 
+##  6 11 28 45 59 49 45 23 10  3  2 
+## 6 least connected regions:
+## 55 97 100 101 244 245 with 1 link
+## 2 most connected regions:
+## 34 82 with 11 links
+## 
+## Weights style: B 
+## Weights constants summary:
+##     n    nn   S0   S1    S2
+## B 281 78961 1522 3044 37160
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 
 \end{document}

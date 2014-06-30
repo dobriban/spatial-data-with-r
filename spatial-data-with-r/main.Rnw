@@ -2,10 +2,6 @@
 
 \usepackage{hyperref}
 \usepackage[T1]{fontenc}
-\usepackage{geometry} % to change the page dimensions
-\geometry{letterpaper} % or letterpaper (US) or a5paper or....
-\geometry{margin=0.75in} % for example, change the margins to 2 inches all round
-
 <<setup, include=FALSE>>=
 library(knitr)
 options(width=50)
@@ -19,13 +15,11 @@ options(width=50)
 \author{Edgar Dobriban}
 
 \maketitle
-  This script presents an introduction to spatial data analysis with R. It is based on Chapters 2 and 9 of our book: \textbf{Applied Spatial Data Analysis with R}, Roger S. Bivand, Edzer Pebesma and V. Gomez-Rubio
-   UseR! Series, Springer, 2nd ed. 2013.
-   
-   Please consult the textbook for more extensive reference, it is a great resource.
-   
-  Running this script requires that the code and data bundles from the book be unzipped in the same folder as the script. For instance the zip bundle for chapter 2 is available at: 
-  \url{http://www.asdar-book.org/data2ed.php?chapter=2}
+This script presents an introduction to spatial data analysis with R. It is based on Chapters 2 and 9 of our book: \textbf{Applied Spatial Data Analysis with R}, Roger S. Bivand, Edzer Pebesma and V. Gomez-Rubio
+ UseR! Series, Springer, 2nd ed. 2013.
+ 
+Running this script requires that the code and data bundles from the book be unzipped in the same folder as the script. For instance the zip bundle for chapter 2 is available at: 
+\url{http://www.asdar-book.org/data2ed.php?chapter=2}
 
 Similarly, get the zip bundle for chapter 9.
  
@@ -69,7 +63,6 @@ cities <- readOGR(".", "NY8cities")
 # TCE: Trichloroethylene
 TCE <- readOGR(".", "TCE")
 @
-
 
 Let's look at how the data is stored.
 
@@ -274,25 +267,13 @@ CRAN_spdf <- SpatialPointsDataFrame(CRAN_sp, CRAN_df)
 summary(CRAN_spdf)
 @
 
-The second key data type is the class of Spatial Weights - listw. 
-
-It is based on the Spatial neighbors \verb+("nb")+ class. This class is a list of length $n$, where $n$ is the number of our nodes, 
-with the index numbers of neighbors of each component stored as an integer vector. Run the following: \verb+vignette("nb", package = "spdep")+ to read more on neighbors.
-
-Recall that we already have \verb+NY_nb+ as an object of nb class. 
-
-On top of it we can add nonzero weights for each pair of neighbors, getting the listw class. 
-
 <<>>=
-NY_w <-nb2listw(NY_nb)
-summary(NY_w)
+#Key data type #2: Spatial Weights - listw
+#listw is an old-style (S3) class, so has no formal definition
+# it is based on the Spatial neighbors ("nb") class
+#run the following: vignette("nb", package = "spdep") #read more
 @
 
-By default each node is normalized to have total sum of out-weights equal to 1. We can also choose to use binary weights.
 
-<<>>=
-NY_w <-nb2listw(NY_nb, style = "B")
-summary(NY_w)
-@
 
 \end{document}
