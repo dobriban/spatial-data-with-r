@@ -14,5 +14,5 @@ Applied Spatial Data Analysis with R, Roger S. Bivand, Edzer Pebesma and V. Gome
 UseR! Series, Springer, 2nd ed. 2013.
    
 Running this script requires that the code and data bundles from the book be unzipped in the same folder as the script. 
-These data sets are present in the present git repository, and their original source is the book website:  
+These data sets are present in this git repository, and their original source is the book website:  
 http://www.asdar-book.org/.
